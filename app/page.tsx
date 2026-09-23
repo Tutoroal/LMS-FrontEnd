@@ -2,16 +2,16 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, BookOpen, CheckCircle2, Code, Palette, Network, Briefcase, Building2, Utensils, Laptop, Sparkles, GraduationCap, Clock, FileText, LayoutDashboard } from "lucide-react";
+import { ArrowRight, BookOpen, CheckCircle2, Code, Palette, Network, Briefcase, Building2, Utensils, Laptop, Sparkles, Clock, FileText, LayoutDashboard, Bell } from "lucide-react";
 
 export default function LandingPage() {
   const [isInitializing, setIsInitializing] = useState(true);
 
-  // Efek Loading Screen Interaktif ala Citra Negara
+  // Efek Loading Screen diubah menjadi jauh lebih cepat (500ms)
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsInitializing(false);
-    }, 1500);
+    }, 500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -72,7 +72,7 @@ export default function LandingPage() {
             </h2>
             
             <p className="text-lg text-slate-500 font-semibold leading-relaxed max-w-lg">
-              Satu sistem untuk pembelajaran yang lebih tertib, pemantauan materi yang lebih cepat, dan pengelolaan nilai akademik yang lebih mudah.
+              Satu sistem untuk pembelajaran yang lebih tertib, pemantauan materi yang lebih cepat, dan pengelolaan data akademik yang lebih mudah.
             </p>
             
             <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -93,8 +93,8 @@ export default function LandingPage() {
                     <Laptop size={24} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-black text-slate-800">Ruang Kelas Virtual</h3>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1">Real-time Data</p>
+                    <h3 className="text-lg font-black text-slate-800">Aktivitas Hari Ini</h3>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1">Ringkasan jadwal & tugas</p>
                   </div>
                 </div>
               </div>
@@ -103,23 +103,35 @@ export default function LandingPage() {
                 <div className="bg-white p-5 rounded-2xl flex items-center gap-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
                   <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><Clock size={24} /></div>
                   <div className="flex-1">
-                    <p className="text-sm font-black text-slate-800 mb-1">Materi Terjadwal</p>
-                    <p className="text-xs font-bold text-slate-500">Akses modul harian sesuai sesi.</p>
+                    <p className="text-sm font-black text-slate-800 mb-1">PBO - Kelas XI PPLG 1</p>
+                    <p className="text-xs font-bold text-slate-500">08:00 - 09:30 WIB</p>
                   </div>
+                </div>
+                <div className="bg-white p-5 rounded-2xl flex items-center gap-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center"><FileText size={24} /></div>
+                  <div className="flex-1">
+                    <p className="text-sm font-black text-slate-800 mb-1">Project Akhir Web</p>
+                    <p className="text-xs font-bold text-slate-500">Tenggat: Besok, 23:59</p>
+                  </div>
+                  <span className="bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-xs font-black">Belum</span>
                 </div>
                 <div className="bg-white p-5 rounded-2xl flex items-center gap-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
                   <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><CheckCircle2 size={24} /></div>
                   <div className="flex-1">
-                    <p className="text-sm font-black text-slate-800 mb-1">Validasi Otomatis</p>
-                    <p className="text-xs font-bold text-slate-500">Sistem nilai terintegrasi langsung.</p>
+                    <p className="text-sm font-black text-slate-800 mb-1">Desain UI/UX Figma</p>
+                    <p className="text-xs font-bold text-slate-500">Selesai dinilai</p>
                   </div>
+                  <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-black">Nilai: 95</span>
                 </div>
-                <div className="bg-white p-5 rounded-2xl flex items-center gap-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center"><LayoutDashboard size={24} /></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-black text-slate-800 mb-1">Desain Bersih & Cepat</p>
-                    <p className="text-xs font-bold text-slate-500">Antarmuka nyaman untuk semua.</p>
-                  </div>
+              </div>
+              
+              <div className="absolute -bottom-8 -right-8 bg-white p-5 rounded-3xl shadow-2xl border border-slate-100 flex items-center gap-4 animate-bounce">
+                <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600">
+                  <Bell size={24} />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Pemberitahuan</p>
+                  <p className="text-lg font-black text-slate-800">2 Tugas Baru</p>
                 </div>
               </div>
             </div>
@@ -128,7 +140,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ALUR SECTION (Interactive Steps ala Citra Negara) */}
+      {/* ALUR SECTION */}
       <section className="py-24 px-6 bg-slate-900 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/20 rounded-full blur-[100px]"></div>
         
@@ -145,7 +157,6 @@ export default function LandingPage() {
             </div>
 
             <div className="space-y-6">
-              {/* Step 1 */}
               <div className="bg-slate-800/50 backdrop-blur-sm p-6 rounded-3xl border border-slate-700 flex gap-6 hover:bg-slate-800 transition-colors">
                 <span className="text-2xl font-black text-slate-600">01</span>
                 <div>
@@ -153,7 +164,6 @@ export default function LandingPage() {
                   <p className="text-slate-400 font-medium text-sm">Masuk ke dalam halaman login menggunakan akun NIS/NISN siswa yang sudah terdaftar untuk membuka dashboard.</p>
                 </div>
               </div>
-              {/* Step 2 */}
               <div className="bg-slate-800/50 backdrop-blur-sm p-6 rounded-3xl border border-slate-700 flex gap-6 hover:bg-slate-800 transition-colors">
                 <span className="text-2xl font-black text-slate-600">02</span>
                 <div>
@@ -161,7 +171,6 @@ export default function LandingPage() {
                   <p className="text-slate-400 font-medium text-sm">Pilih mata pelajaran yang tersedia hari ini. Baca modul dan tonton video materi yang diberikan oleh guru.</p>
                 </div>
               </div>
-              {/* Step 3 */}
               <div className="bg-slate-800/50 backdrop-blur-sm p-6 rounded-3xl border border-slate-700 flex gap-6 hover:bg-slate-800 transition-colors">
                 <span className="text-2xl font-black text-slate-600">03</span>
                 <div>
@@ -178,7 +187,7 @@ export default function LandingPage() {
       <section className="py-24 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tight">Setiap jurusan terhubung dalam satu sistem yang praktis dan informatif.</h2>
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tight">Setiap jurusan terhubung dalam satu sistem yang praktis.</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -221,7 +230,7 @@ export default function LandingPage() {
               <Utensils size={36} className="text-indigo-600 group-hover:text-white mb-6" />
               <div className="text-xs font-bold text-slate-400 group-hover:text-indigo-200 uppercase tracking-widest mb-2">Layanan</div>
               <h3 className="text-2xl font-black text-slate-900 group-hover:text-white mb-3">Perhotelan</h3>
-              <p className="text-slate-500 group-hover:text-indigo-100 font-medium text-sm">Etika layanan dan kesiapan industri.</p>
+              <p className="text-slate-500 group-hover:text-indigo-100 font-medium text-sm">Etika layanan dan hospitality.</p>
             </div>
           </div>
         </div>
