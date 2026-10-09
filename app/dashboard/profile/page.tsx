@@ -1,0 +1,12 @@
+"use client";
+import {type FormEvent} from "react";
+import {apiJSON,jsonBody,endLocalSession} from "@/lib/api";
+import {useResource,useAction} from "@/lib/use-resource";
+import type {SessionData} from "@/lib/types";
+import ThemeToggle from "@/components/theme-toggle";
+import {PageHeading,Notice,Loading,Field,button,inputClass,card} from "@/components/ui";
+export default function ProfilePage(){
+ const resource=useResource<SessionData>("/auth/me");const action=useAction();
+ const change=async(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();const form=new FormData(event.currentTarget);if(form.get("password")!==form.get("confirm_password")){await action.run(async()=>{throw new Error("Konfirmasi kata sandi belum sama.");});return;}await action.run(async()=>{await apiJSON("/auth/password",{method:"PUT",...jsonBody({current_password:form.get("current_password"),password:form.get("password")})});endLocalSession();});};
+ return <div className="mx-auto max-w-4xl space-y-6"><PageHeading title="Akun Saya" description="Lihat profil, atur tema, dan ganti kata sandi akun Anda."/><Notice error={resource.error||action.error}/>{resource.loading?<Loading/>:<section className={card}><h2 className="text-xl font-black">{resource.data?.name}</h2><p className="mt-2 text-sm text-slate-500">{resource.data?.email}</p><p className="mt-2 text-sm text-slate-500">{resource.data?.role_id===1?"Administrator":resource.data?.role_id===2?"Guru":"Siswa"} · {resource.data?.nisn_nip||resource.data?.nis||"Tanpa nomor identitas"}</p><p className="mt-4 text-xs text-slate-500">Untuk memperbarui nama, email, atau penempatan kelas, hubungi administrator.</p></section>}<form onSubmit={change} className={`${card} space-y-5`}><h2 className="text-lg font-black">Ganti kata sandi</h2><Field label="Kata sandi lama"><input name="current_password" type="password" required autoComplete="current-password" className={inputClass}/></Field><Field label="Kata sandi baru"><input name="password" type="password" minLength={8} maxLength={72} required autoComplete="new-password" className={inputClass}/></Field><Field label="Konfirmasi kata sandi baru"><input name="confirm_password" type="password" minLength={8} required autoComplete="new-password" className={inputClass}/></Field><p className="text-sm text-slate-500">Pergantian kata sandi mengakhiri sesi akun di semua perangkat. Anda akan diminta masuk kembali.</p><button className={button} disabled={action.busy}>{action.busy?"Menyimpan...":"Ganti kata sandi"}</button></form><div className={card}><ThemeToggle/></div></div>;
+}

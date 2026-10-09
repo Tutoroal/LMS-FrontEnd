@@ -1,0 +1,17 @@
+"use client";
+import {type FormEvent} from "react";
+import {useParams} from "next/navigation";
+import Link from "next/link";
+import {apiJSON,jsonBody} from "@/lib/api";
+import {useResource,useAction} from "@/lib/use-resource";
+import type {QuestionData,ExamData} from "@/lib/types";
+import {PageHeading,Notice,Loading,Empty,Field,button,secondary,danger,inputClass,card} from "@/components/ui";
+export default function QuestionPage(){const {id}=useParams<{id:string}>();return <QuestionBuilder key={id} id={id}/>;}
+function QuestionBuilder({id}:{id:string}){
+ const resource=useResource<{data:QuestionData[];exam:ExamData;locked:boolean}>(`/teacher/exams/${id}/questions`);const action=useAction();
+ const add=async(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();const form=event.currentTarget;const values=Object.fromEntries(new FormData(form).entries());await action.run(async()=>{await apiJSON("/teacher/exams/questions",{method:"POST",...jsonBody({...values,exam_id:Number(id)})});form.reset();resource.reload();},"Soal ditambahkan.");};
+ return <div className="mx-auto max-w-5xl space-y-6"><Link className={secondary} href="/dashboard/teacher/exams">Kembali ke ujian</Link><PageHeading title={resource.data?.exam.Title||"Pembuat Soal"} description={`${resource.data?.data.length||0} soal pilihan ganda · Soal terkunci selama ujian terbuka atau setelah ada peserta.`}><Link className={secondary} href={`/dashboard/teacher/exams/${id}/results`}>Hasil siswa</Link></PageHeading><Notice error={resource.error||action.error} message={action.message}/>
+ {resource.data?.locked?<Notice message="Soal terkunci. Tutup ujian untuk mengedit jika belum ada peserta; setelah ada peserta, buat ujian baru untuk mengubah soal."/>:<form onSubmit={add} className={`${card} space-y-5`}><Field label="Pertanyaan"><textarea required name="question_text" rows={4} maxLength={10000} className={inputClass}/></Field><div className="grid gap-4 sm:grid-cols-2">{["A","B","C","D"].map(option=><Field key={option} label={`Pilihan ${option}`}><input required name={`option_${option.toLowerCase()}`} maxLength={255} className={inputClass}/></Field>)}</div><Field label="Kunci jawaban"><select name="correct_answer" className={inputClass}>{["A","B","C","D"].map(option=><option key={option}>{option}</option>)}</select></Field><button disabled={action.busy||resource.loading} className={button}>{action.busy?"Menyimpan...":"Tambah soal"}</button></form>}
+ {resource.loading?<Loading/>:!resource.data?.data.length?<Empty text="Belum ada soal."/>:<div className="space-y-4">{resource.data.data.map((question,index)=><article key={question.ID} className={card}><div className="flex items-start justify-between gap-4"><h2 className="whitespace-pre-wrap font-bold">{index+1}. {question.QuestionText}</h2><button disabled={action.busy||resource.data?.locked} className={danger} onClick={()=>{if(window.confirm("Hapus soal ini?"))void action.run(async()=>{await apiJSON(`/teacher/exams/questions/${question.ID}`,{method:"DELETE"});resource.reload();},"Soal dihapus.");}}>Hapus</button></div><div className="mt-4 grid gap-2 sm:grid-cols-2">{(["A","B","C","D"] as const).map(option=><p key={option} className={`rounded-xl p-3 text-sm ${question.CorrectAnswer===option?"bg-emerald-50 font-bold text-emerald-700":"bg-slate-50 text-slate-600"}`}>{option}. {question[`Option${option}`]}</p>)}</div></article>)}</div>}
+ </div>;
+}

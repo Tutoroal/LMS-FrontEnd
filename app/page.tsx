@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, BookOpen, CheckCircle2, Code, Palette, Network, Briefcase, Building2, Utensils, Laptop, Sparkles, Clock, FileText, LayoutDashboard, Bell } from "lucide-react";
+import { ArrowRight, BookOpen, CheckCircle2, Code, Palette, Network, Briefcase, Building2, Utensils, Laptop, Sparkles, Clock, FileText, Bell } from "lucide-react";
 
 export default function LandingPage() {
   const [isInitializing, setIsInitializing] = useState(true);
@@ -32,7 +32,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-200 relative">
       
       {/* Background Grid Pattern */}
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-overlay"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-transparent opacity-20 pointer-events-none mix-blend-overlay"></div>
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
 
       {/* NAVBAR */}
@@ -51,7 +51,7 @@ export default function LandingPage() {
             href="/login" 
             className="bg-slate-900 hover:bg-indigo-600 text-white px-7 py-2.5 rounded-full text-sm font-bold transition-all shadow-md hover:shadow-xl hover:-translate-y-0.5"
           >
-            Masuk Siswa
+            Masuk Portal
           </Link>
         </div>
       </nav>
@@ -63,7 +63,7 @@ export default function LandingPage() {
           <div className="space-y-8 relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-black tracking-wide">
               <Sparkles size={14} className="text-indigo-500" />
-              Siap untuk Siswa, Walas, BK, dan Admin.
+              Untuk Siswa, Guru, dan Admin.
             </div>
             
             <h2 className="text-5xl md:text-6xl font-black text-slate-900 tracking-tighter leading-[1.15]">
@@ -215,7 +215,7 @@ export default function LandingPage() {
             <div className="group bg-slate-50 p-8 rounded-[2rem] border border-slate-100 hover:bg-indigo-600 hover:shadow-2xl transition-all duration-300">
               <Briefcase size={36} className="text-indigo-600 group-hover:text-white mb-6" />
               <div className="text-xs font-bold text-slate-400 group-hover:text-indigo-200 uppercase tracking-widest mb-2">Bisnis</div>
-              <h3 className="text-2xl font-black text-slate-900 group-hover:text-white mb-3">Pemasaran</h3>
+              <h3 className="text-2xl font-black text-slate-900 group-hover:text-white mb-3">BDR</h3>
               <p className="text-slate-500 group-hover:text-indigo-100 font-medium text-sm">Strategi promosi dan layanan pelanggan.</p>
             </div>
 
@@ -229,7 +229,7 @@ export default function LandingPage() {
             <div className="group bg-slate-50 p-8 rounded-[2rem] border border-slate-100 hover:bg-indigo-600 hover:shadow-2xl transition-all duration-300">
               <Utensils size={36} className="text-indigo-600 group-hover:text-white mb-6" />
               <div className="text-xs font-bold text-slate-400 group-hover:text-indigo-200 uppercase tracking-widest mb-2">Layanan</div>
-              <h3 className="text-2xl font-black text-slate-900 group-hover:text-white mb-3">Perhotelan</h3>
+              <h3 className="text-2xl font-black text-slate-900 group-hover:text-white mb-3">PERHOTELAN</h3>
               <p className="text-slate-500 group-hover:text-indigo-100 font-medium text-sm">Etika layanan dan hospitality.</p>
             </div>
           </div>
@@ -249,8 +249,8 @@ export default function LandingPage() {
             Pilihan Tepat Sekolah Yang M.A.N.T.A.P.
           </p>
           <div className="flex items-center gap-6 text-sm font-bold text-slate-400">
-            <a href="#" className="hover:text-indigo-600 transition-colors">Bantuan</a>
-            <a href="#" className="hover:text-indigo-600 transition-colors">Privasi</a>
+            <Link href="/help" className="hover:text-indigo-600 transition-colors">Bantuan</Link>
+            <Link href="/privacy" className="hover:text-indigo-600 transition-colors">Privasi</Link>
           </div>
         </div>
       </footer>

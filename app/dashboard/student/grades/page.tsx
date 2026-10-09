@@ -1,0 +1,9 @@
+"use client";
+import {useResource} from "@/lib/use-resource";
+import {dateLabel} from "@/lib/types";
+import {PageHeading,Notice,Loading,Empty,card} from "@/components/ui";
+type Grades={assignments:{ID:number;Title:string;SubjectName:string;Score:number;MaxScore:number;Feedback:string;GradedAt:string}[];exams:{ID:number;Title:string;SubjectName:string;Type:string;Score:number}[]};
+export default function GradesPage(){
+ const resource=useResource<Grades>("/student/grades");
+ return <div className="mx-auto max-w-6xl space-y-6"><PageHeading title="Rekap Nilai" description="Nilai tugas yang sudah diperiksa guru dan hasil ujian CBT Anda."/><Notice error={resource.error}/>{resource.loading?<Loading/>:<><h2 className="text-xl font-black">Tugas</h2>{!resource.data?.assignments.length?<Empty text="Belum ada tugas yang dinilai."/>:<div className="grid gap-4 md:grid-cols-2">{resource.data.assignments.map(row=><article key={row.ID} className={card}><p className="text-xs text-indigo-600">{row.SubjectName} · {dateLabel(row.GradedAt)}</p><h3 className="mt-3 font-bold">{row.Title}</h3><p className="my-3 text-3xl font-black text-indigo-600">{row.Score}<span className="text-sm text-slate-500"> / {row.MaxScore}</span></p><p className="whitespace-pre-wrap text-sm text-slate-500">{row.Feedback||"Tanpa catatan."}</p></article>)}</div>}<h2 className="text-xl font-black">Ujian</h2>{!resource.data?.exams.length?<Empty text="Belum ada hasil ujian."/>:<div className="grid gap-4 md:grid-cols-2">{resource.data.exams.map(row=><article key={row.ID} className={card}><p className="text-xs text-purple-600">{row.SubjectName} · {row.Type}</p><h3 className="mt-3 font-bold">{row.Title}</h3><p className="mt-3 text-3xl font-black text-purple-600">{row.Score.toFixed(2)}<span className="text-sm text-slate-500"> / 100</span></p></article>)}</div>}</>}</div>;
+}
