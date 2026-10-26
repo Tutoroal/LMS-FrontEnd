@@ -6,19 +6,21 @@ export function useResource<T>(path: string | null) {
  const [data, setData] = useState<T | null>(null);
  const [error, setError] = useState("");
  const [loading, setLoading] = useState(true);
+ const [loadedPath,setLoadedPath]=useState<string|null>(null);
  const [revision, setRevision] = useState(0);
  const reload = useCallback(() => { setLoading(true); setRevision(value => value + 1); }, []);
  useEffect(() => {
   if (!path) return;
   const controller = new AbortController();
   apiJSON<T>(path, { signal: controller.signal }).then(value => {
-   setData(value); setError(""); setLoading(false);
+   if (controller.signal.aborted) return;
+   setData(value); setError(""); setLoading(false);setLoadedPath(path);
   }).catch(reason => {
-   if (!controller.signal.aborted) { setError(reason instanceof Error ? reason.message : "Gagal memuat data."); setLoading(false); }
+   if (!controller.signal.aborted) { setData(null); setError(reason instanceof Error ? reason.message : "Gagal memuat data."); setLoading(false);setLoadedPath(path); }
   });
   return () => controller.abort();
  }, [path, revision]);
- return { data, error, loading, reload };
+ return { data, error, loading:!!path&&(loading||loadedPath!==path), reload };
 }
 export function useAction() {
  const [busy, setBusy] = useState(false);

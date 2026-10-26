@@ -78,7 +78,7 @@ test("exam auto submits when countdown ends",async({page})=>{
  await expect(page.getByRole("heading",{name:"Ujian selesai"})).toBeVisible({timeout:75000});
  await expect(page.getByText("100.00",{exact:false})).toBeVisible();
 });
-test("admin class management, import template and saved settings",async({page})=>{
+test("admin class management and import template",async({page})=>{
  await login(page,"admin");
  await page.goto("/dashboard/academic/classes");
  await page.getByRole("button",{name:/Tambah kelas/i}).click();
@@ -90,12 +90,7 @@ test("admin class management, import template and saved settings",async({page})=
  const download=page.waitForEvent("download");
  await page.getByRole("button",{name:/template/i}).click();
  expect((await download).suggestedFilename()).toMatch(/\.xlsx$/);
- await page.goto("/dashboard/settings");
- await page.getByLabel("Nama sekolah").fill("SMK Browser Uji");
- await page.getByRole("button",{name:/Simpan/}).click();
- await expect(page.getByText("Pengaturan sekolah tersimpan.",{exact:true})).toBeVisible();
- await page.reload();
- await expect(page.getByLabel("Nama sekolah")).toHaveValue("SMK Browser Uji");
+
 });
 test("mobile menu, cross-role redirect and revoked logout token",async({page,request})=>{
  await page.setViewportSize({width:390,height:844});

@@ -9,7 +9,7 @@ export async function apiFetch(input: string, init: RequestInit = {}): Promise<R
  const relayAbort = () => controller.abort(init.signal?.reason);
  init.signal?.addEventListener("abort", relayAbort, { once: true });
  if (init.signal?.aborted) relayAbort();
- const timer = setTimeout(() => controller.abort(new Error("Permintaan terlalu lama. Periksa koneksi lalu coba lagi.")), input.includes("/import") ? 120000 : 20000);
+ const timer = setTimeout(() => controller.abort(new Error("Permintaan terlalu lama. Periksa koneksi lalu coba lagi.")), (input.includes("/import")||input.includes("/uploads")) ? 120000 : 20000);
  try {
   const response = await fetch(url, { ...init, headers, cache: "no-store", signal: controller.signal });
   if (response.status === 401 && !url.endsWith("/login")) { endLocalSession(); }
@@ -38,4 +38,4 @@ export async function downloadFile(path: string, filename: string) {
  const link = document.createElement("a"); link.href = url; link.download = filename; document.body.appendChild(link); link.click(); link.remove();
  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-export function roleHome(role: number) { return role === 2 ? "/dashboard/teacher" : role === 3 ? "/dashboard/student" : "/dashboard"; }
+export function roleHome(role: number) { return role === 6 ? "/dashboard/super-admin" : role === 4 || role === 5 ? "/dashboard/monitor" : role === 2 ? "/dashboard/teacher" : role === 3 ? "/dashboard/student" : "/dashboard"; }

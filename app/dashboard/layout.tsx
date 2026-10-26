@@ -3,26 +3,37 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BookOpen, Home, Users, GraduationCap, Briefcase, Layers, Settings, LogOut, Menu, X, Award, ClipboardList } from "lucide-react";
+import { BookOpen, Home, Users, GraduationCap, Briefcase, Layers, Settings, LogOut, Menu, X, Award, ClipboardList, Eye, FileBarChart } from "lucide-react";
+import { SchoolBrand, LogoMark } from "@/components/branding";
 import { apiJSON, roleHome, endLocalSession } from "@/lib/api";
 
 type Session = { id: string; name: string; email: string; role_id: number; expires_at: string };
 function allowed(path: string, role: number) {
   if (path === "/dashboard/profile") return true;
-  if (role === 1) return path === "/dashboard" || ["/dashboard/users/", "/dashboard/academic/", "/dashboard/settings", "/dashboard/courses"].some(prefix => path.startsWith(prefix));
+  if (role === 6) return path === "/dashboard/super-admin" || path === "/dashboard/users/admin" || path === "/dashboard/settings";
+  if (role === 4 || role === 5) return path === "/dashboard/monitor" || path.startsWith("/dashboard/monitor/");
+  if (role === 1) return path === "/dashboard" || path.startsWith("/dashboard/academic/") || path.startsWith("/dashboard/courses") || (path.startsWith("/dashboard/users/") && path !== "/dashboard/users/admin");
   return path === roleHome(role) || path.startsWith(role === 2 ? "/dashboard/teacher/" : "/dashboard/student/");
 }
+const monitorMenus=[{name:"Ringkasan",icon:Home,path:"/dashboard/monitor"},{name:"Aktivitas Kelas",icon:Layers,path:"/dashboard/monitor/classes"},{name:"Aktivitas Guru",icon:Briefcase,path:"/dashboard/monitor/teachers"},{name:"Materi Belajar",icon:BookOpen,path:"/dashboard/monitor/materials"},{name:"Tugas & Nilai",icon:ClipboardList,path:"/dashboard/monitor/assignments"},{name:"Ujian",icon:Award,path:"/dashboard/monitor/exams"},{name:"Laporan",icon:FileBarChart,path:"/dashboard/monitor/reports"}];
 const menus = {
+  4: monitorMenus,
+  5: monitorMenus,
+  6: [
+    { name: "Beranda", icon: Home, path: "/dashboard/super-admin" },
+    { name: "Kelola Admin", icon: Users, path: "/dashboard/users/admin" },
+    { name: "Pengaturan Sistem", icon: Settings, path: "/dashboard/settings" },
+  ],
   1: [
     { name: "Beranda", icon: Home, path: "/dashboard" },
-    { name: "Manajemen Akun", icon: Users, path: "/dashboard/users/admin" },
+    { name: "Kepala Sekolah", icon: Eye, path: "/dashboard/users/kepsek" },
+    { name: "Waka Kurikulum", icon: Eye, path: "/dashboard/users/waka" },
     { name: "Manajemen Siswa", icon: GraduationCap, path: "/dashboard/users/siswa" },
     { name: "Manajemen Guru", icon: Briefcase, path: "/dashboard/users/guru" },
     { name: "Manajemen Kelas", icon: Layers, path: "/dashboard/academic/classes" },
     { name: "Mata Pelajaran", icon: BookOpen, path: "/dashboard/academic/subjects" },
     { name: "Jadwal Kelas", icon: Layers, path: "/dashboard/academic/schedules" },
     { name: "Import Excel", icon: ClipboardList, path: "/dashboard/academic/import" },
-    { name: "Pengaturan Sistem", icon: Settings, path: "/dashboard/settings" },
   ],
   2: [
     { name: "Beranda", icon: Home, path: "/dashboard/teacher" },
@@ -30,6 +41,7 @@ const menus = {
     { name: "Materi Belajar", icon: BookOpen, path: "/dashboard/teacher/materials" },
     { name: "Tugas & Penilaian", icon: ClipboardList, path: "/dashboard/teacher/assignments" },
     { name: "Ujian CBT", icon: Award, path: "/dashboard/teacher/exams" },
+    { name: "Rekap Bulanan", icon: FileBarChart, path: "/dashboard/teacher/reports" },
   ],
   3: [
     { name: "Beranda", icon: Home, path: "/dashboard/student" },
@@ -68,7 +80,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       try {
         const current = await apiJSON<Session>("/auth/me");
         if (cancelled) return;
-        if (![1, 2, 3].includes(current.role_id)) { endSession(); return; }
+        if (![1, 2, 3, 4, 5, 6].includes(current.role_id)) { endSession(); return; }
         const remaining = new Date(current.expires_at).getTime() - Date.now();
         if (!Number.isFinite(remaining) || remaining <= 0) { endSession(); return; }
         clearTimeout(expiryTimer);
@@ -115,29 +127,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (error) return <div role="alert" className="p-10 text-center space-y-4"><p>{error}</p><button onClick={() => setRetry(value => value + 1)} className="rounded-xl bg-indigo-600 px-5 py-3 text-white">Coba lagi</button><button onClick={() => { endLocalSession(); router.replace("/login"); }} className="ml-3 underline">Kembali ke login</button></div>;
   if (!session || validatedPath !== pathname || !allowed(pathname, session.role_id)) return <div role="status" className="p-10 text-center text-slate-500">Memeriksa sesi...</div>;
   const activeMenus = [...menus[session.role_id as keyof typeof menus], { name: "Akun Saya", icon: Settings, path: "/dashboard/profile" }];
+  const dockPaths=session.role_id===6?["/dashboard/super-admin","/dashboard/users/admin","/dashboard/settings"]:session.role_id===1?["/dashboard","/dashboard/users/siswa","/dashboard/users/guru","/dashboard/academic/classes"]:session.role_id===2?["/dashboard/teacher","/dashboard/teacher/assignments","/dashboard/teacher/exams","/dashboard/teacher/materials"]:session.role_id===3?["/dashboard/student","/dashboard/student/assignments","/dashboard/student/exams","/dashboard/student/materials"]:["/dashboard/monitor","/dashboard/monitor/classes","/dashboard/monitor/teachers","/dashboard/monitor/reports"];
+  const isActive=(path:string)=>pathname===path || (path!==roleHome(session.role_id)&&pathname.startsWith(path+"/"));
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
-      {mobileOpen && <button aria-label="Tutup navigasi" onClick={() => setMobilePath(null)} className="fixed inset-0 z-30 bg-slate-900/50 lg:hidden" />}
-      <aside id="dashboard-navigation" className={`fixed inset-y-0 left-0 z-40 w-[280px] flex-col border-r border-slate-200 bg-white lg:flex ${mobileOpen ? "flex" : "hidden"}`}>
-        <div className="flex h-20 items-center justify-between border-b border-slate-100 px-6">
-          <span className="flex items-center gap-3 text-xl font-black"><BookOpen className="text-indigo-600" /> cn edu</span>
-          <button aria-label="Tutup navigasi" className="lg:hidden p-2" onClick={() => setMobilePath(null)}><X /></button>
-        </div>
-        <nav aria-label="Menu utama" className="flex-1 space-y-2 overflow-y-auto p-4">
+    <div className="app-shell">
+      {mobileOpen && <button aria-label="Tutup navigasi" onClick={() => setMobilePath(null)} className="fixed inset-0 z-30 bg-slate-900/40 backdrop-blur-sm lg:hidden" />}
+      <aside id="dashboard-navigation" className={"app-sidebar lg:flex "+(mobileOpen?"flex":"hidden")}>
+        <div className="sidebar-brand"><SchoolBrand compact name="cn edu" caption="LMS Citra Negara"/><button aria-label="Tutup navigasi" className="icon-button lg:hidden" onClick={() => setMobilePath(null)}><X size={18}/></button></div>
+        <p className="sidebar-label">Menu utama</p>
+        <nav aria-label="Menu utama" className="sidebar-nav">
           {activeMenus.map(item => {
-            const active = pathname === item.path || (item.path !== "/dashboard" && item.path !== "/dashboard/teacher" && item.path !== "/dashboard/student" && pathname.startsWith(item.path + "/"));
-            return <Link key={item.path} href={item.path} onClick={() => setMobilePath(null)} aria-current={active ? "page" : undefined} className={`flex items-center gap-3 rounded-2xl px-4 py-3.5 font-bold ${active ? "bg-indigo-50 text-indigo-700" : "text-slate-500 hover:bg-slate-50"}`}><item.icon size={20} />{item.name}</Link>;
+            const active = isActive(item.path);
+            return <Link key={item.path} href={item.path} onClick={() => setMobilePath(null)} aria-current={active ? "page" : undefined} className="sidebar-link"><item.icon size={18} aria-hidden="true"/>{item.name}</Link>;
           })}
         </nav>
-        <button onClick={logout} disabled={logoutBusy} className="m-4 flex items-center gap-3 rounded-xl p-4 text-red-600 hover:bg-red-50"><LogOut size={20} />{logoutBusy ? "Mengakhiri sesi..." : "Keluar"}</button>
+        <div className="sidebar-footer"><button onClick={logout} disabled={logoutBusy} className="logout-button"><LogOut size={18} aria-hidden="true"/>{logoutBusy ? "Mengakhiri sesi..." : "Keluar"}</button></div>
       </aside>
-      <div className="min-h-screen lg:ml-[280px]">
-        <header className="sticky top-0 z-20 flex min-h-20 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 sm:px-10">
-          <div className="flex items-center gap-3"><button aria-label="Buka navigasi" aria-expanded={mobileOpen} aria-controls="dashboard-navigation" onClick={() => setMobilePath(pathname)} className="rounded-xl p-2 lg:hidden"><Menu /></button><span className="text-lg font-black">Portal {session.role_id === 1 ? "Admin" : session.role_id === 2 ? "Guru" : "Siswa"}</span></div>
-          <div className="min-w-0 text-right"><p className="truncate font-bold">{session.name}</p><p className="hidden text-xs text-slate-500 sm:block">{session.email}</p></div>
+      <div className="app-workspace min-h-screen">
+        <header className="app-topbar">
+          <div className="flex min-w-0 items-center gap-3"><button aria-label="Buka navigasi" aria-expanded={mobileOpen} aria-controls="dashboard-navigation" onClick={() => setMobilePath(pathname)} className="icon-button lg:hidden"><Menu size={20}/></button><span className="hidden sm:inline-flex lg:hidden"><LogoMark size={30}/></span><span className="portal-title">Portal {session.role_id === 6 ? "Super Admin" : session.role_id === 1 ? "Admin" : session.role_id === 2 ? "Guru" : session.role_id===3?"Siswa":session.role_id===4?"Kepala Sekolah":"Waka Kurikulum"}</span></div>
+          <Link href="/dashboard/profile" className="profile-link"><span className="profile-avatar" aria-hidden="true">{session.name.slice(0,1).toUpperCase()}</span><div className="min-w-0 text-right"><p className="max-w-[160px] truncate text-sm font-semibold sm:max-w-xs">{session.name}</p><p className="mt-0.5 hidden text-[11px] text-slate-500 sm:block">{session.email}</p></div></Link>
         </header>
-        <main className="p-4 sm:p-8 lg:p-10">{logoutError && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-4 text-red-700">{logoutError}</p>}{children}</main>
+        <main id="main-content" className="workspace-content">{logoutError && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-4 text-red-700">{logoutError}</p>}{children}</main>
       </div>
+      <nav aria-label="Navigasi bawah" className="mobile-dock">{dockPaths.map(path=>{const item=activeMenus.find(value=>value.path===path)!;return <Link key={path} href={path} aria-current={isActive(path)?"page":undefined} onClick={()=>setMobilePath(null)}><item.icon size={21} aria-hidden="true"/><span>{item.name.replace("Manajemen ","").replace("Materi Belajar","Materi").replace("Tugas & Penilaian","Tugas").replace("Ujian CBT","Ujian").replace("Aktivitas ","").replace("Tugas Saya","Tugas").replace("Ujian Saya","Ujian")}</span></Link>})}<button aria-label="Menu lainnya" aria-expanded={mobileOpen} aria-controls="dashboard-navigation" onClick={()=>setMobilePath(mobileOpen?null:pathname)}><Menu size={21} aria-hidden="true"/><span>Lainnya</span></button></nav>
     </div>
   );
 }

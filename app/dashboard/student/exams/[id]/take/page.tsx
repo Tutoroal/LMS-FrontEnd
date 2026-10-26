@@ -4,12 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Clock, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import {AssetPreview} from "@/components/media-preview";
+import {inputClass} from "@/components/ui";
 import { apiJSON } from "@/lib/api";
 
-type Option = "A" | "B" | "C" | "D";
-type Answers = Record<string, Option>;
-type Question = { ID: number; QuestionText: string; OptionA: string; OptionB: string; OptionC: string; OptionD: string };
-type Result = { Score: number };
+type Answers = Record<string, string>;
+type Question = { ID: number; QuestionText: string; OptionA: string; OptionB: string; OptionC: string; OptionD: string; OptionE: string; Kind: string; Points: number; ImageAssetID: number|null };
+type Result = { Score: number; PendingGrading: boolean };
 type Attempt = {
   exam: { ID: number; Title: string; Duration: number };
   questions?: Question[]; answers?: Answers; expires_at?: string; server_time?: string; result?: Result;
@@ -121,7 +122,7 @@ function ExamSheet({ id }: { id: string }) {
     return () => { clearInterval(interval); clearInterval(retry); window.removeEventListener("beforeunload", beforeUnload); window.removeEventListener("online", resume); document.removeEventListener("visibilitychange", tick); };
   }, [attempt, result, submit, flush]);
 
-  const choose = (questionID: number, option: Option) => {
+  const choose = (questionID: number, option: string) => {
     if (finished.current || submittingRef.current || seconds === 0) return;
     answersRef.current = { ...answersRef.current, [questionID]: option };
     pending.current[questionID] = option;
@@ -129,26 +130,31 @@ function ExamSheet({ id }: { id: string }) {
     void flush();
   };
 
-  if (result) return <section className="mx-auto max-w-xl rounded-3xl border border-emerald-200 bg-white p-10 text-center shadow-sm"><CheckCircle className="mx-auto text-emerald-600" size={56} /><h1 className="mt-4 text-2xl font-black">Ujian selesai</h1><p className="mt-2 text-slate-500">{attempt?.exam.Title}</p><p className="my-6 text-5xl font-black text-emerald-600">{result.Score.toFixed(2)}<span className="text-lg text-slate-400"> / 100</span></p><p className="mb-6 text-sm text-slate-500">Hasil sudah tersimpan. Jawaban tidak dapat diubah.</p><Link href="/dashboard/student/exams" className="inline-block rounded-xl bg-indigo-600 px-6 py-3 font-bold text-white">Kembali ke daftar ujian</Link></section>;
+  const editEssay=(questionID:number,answer:string)=>{if(finished.current||submittingRef.current||seconds===0)return;answersRef.current={...answersRef.current,[questionID]:answer};pending.current[questionID]=answer;setAnswers(answersRef.current)};
+
+  if (result) return <section className="mx-auto max-w-xl rounded-3xl border border-emerald-200 bg-white p-10 text-center shadow-sm"><CheckCircle className="mx-auto text-emerald-600" size={56} /><h1 className="mt-4 text-2xl font-black">Ujian selesai</h1><p className="mt-2 text-slate-500">{attempt?.exam.Title}</p><p className="my-6 text-5xl font-black text-emerald-600">{result.Score.toFixed(2)}<span className="text-lg text-slate-400"> / 100</span></p><p className="mb-6 text-sm text-slate-500">{result.PendingGrading?"Nilai sementara. Esai menunggu pemeriksaan guru. Jawaban sudah tersimpan dan tidak dapat diubah.":"Hasil sudah tersimpan. Jawaban tidak dapat diubah."}</p><Link href="/dashboard/student/exams" className="inline-block rounded-xl bg-indigo-600 px-6 py-3 font-bold text-white">Kembali ke daftar ujian</Link></section>;
   if (!attempt) return <div className="space-y-4 p-8 text-center">{error ? <><p role="alert" className="text-red-600">{error}</p><button className="rounded-xl bg-indigo-600 px-5 py-3 text-white" onClick={() => setReload(value => value + 1)}>Coba lagi</button><Link href="/dashboard/student/exams" className="block underline">Kembali ke daftar ujian</Link></> : <p role="status">Menyiapkan lembar ujian...</p>}</div>;
   const questions = attempt.questions || [];
   const question = questions[current];
   if (!question) return <p role="alert">Soal tidak tersedia.</p>;
-  const answered = Object.keys(answers).length;
+  const answered = Object.values(answers).filter(value=>value.trim()).length;
   return <div className="mx-auto max-w-6xl space-y-6">
-    <div className="flex flex-wrap items-center justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-widest text-indigo-600">Lembar ujian</p><h1 className="mt-1 text-2xl font-black">{attempt.exam.Title}</h1><p className="mt-2 text-sm text-slate-500">Jawaban disimpan otomatis. Waktu tetap berjalan jika halaman ditutup.</p></div><div role="timer" aria-label="Sisa waktu" className={`flex items-center gap-2 rounded-2xl px-5 py-3 font-mono text-2xl font-bold ${seconds <= 60 ? "bg-red-50 text-red-600" : "bg-indigo-50 text-indigo-700"}`}><Clock size={22} />{String(Math.floor(seconds / 60)).padStart(2, "0")}:{String(seconds % 60).padStart(2, "0")}</div></div>
+    <div className="flex flex-wrap items-center justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-widest text-indigo-600">Lembar ujian</p><h1 className="mt-1 text-2xl font-black">{attempt.exam.Title}</h1><p className="mt-2 text-sm text-slate-500">Jawaban disimpan otomatis. Waktu tetap berjalan jika halaman ditutup.</p></div><div role="timer" aria-label="Sisa waktu" className={`exam-timer flex items-center gap-2 rounded-2xl px-5 py-3 font-mono text-2xl font-bold ${seconds <= 60 ? "bg-red-50 text-red-600" : "bg-indigo-50 text-indigo-700"}`}><Clock size={22} />{String(Math.floor(seconds / 60)).padStart(2, "0")}:{String(seconds % 60).padStart(2, "0")}</div></div>
     {error && <div role="alert" className="rounded-xl bg-red-50 p-4 text-red-700">{error} <button disabled={submitting} onClick={() => void submit()} className="ml-2 underline">Coba kirim lagi</button></div>}
     {seconds === 0 && <p role="status" className="rounded-xl bg-amber-50 p-4 text-amber-800">Waktu habis. Jawaban yang diterima server sebelum batas waktu akan dinilai.{submitting ? " Mengirim..." : ""}</p>}
     <div className="grid gap-6 lg:grid-cols-[1fr_260px]">
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <section className="lms-card sm:p-8">
         <p className="mb-5 text-sm font-bold text-indigo-600">Soal {current + 1} dari {questions.length}</p>
         <fieldset disabled={seconds === 0 || submitting} className="space-y-4"><legend className="mb-6 whitespace-pre-wrap text-lg font-bold leading-relaxed">{question.QuestionText}</legend>
-          {(["A", "B", "C", "D"] as const).map(option => <label key={option} className={`flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-4 transition-colors ${answers[question.ID] === option ? "border-indigo-500 bg-indigo-50 text-indigo-900" : "border-slate-200 hover:border-indigo-300"}`}><input type="radio" name={`question-${question.ID}`} value={option} checked={answers[question.ID] === option} onChange={() => choose(question.ID, option)} className="mt-1 accent-indigo-600" /><span className="font-bold">{option}.</span><span className="whitespace-pre-wrap">{question[`Option${option}`]}</span></label>)}
+          {question.ImageAssetID&&<AssetPreview id={question.ImageAssetID}/>}
+          {question.Kind==="essay"?<textarea aria-label="Jawaban esai" rows={9} maxLength={10000} value={answers[question.ID]||""} onChange={event=>editEssay(question.ID,event.target.value)} onBlur={()=>void flush()} placeholder="Tulis jawaban Anda..." className={inputClass}/>:<ChoiceOptions question={question} value={answers[question.ID]||""} onChoose={choose}/>}
         </fieldset>
-        <div className="mt-8 flex justify-between gap-3"><button disabled={current === 0} onClick={() => setCurrent(value => value - 1)} className="flex items-center rounded-xl bg-slate-50 px-4 py-3 font-bold disabled:opacity-40"><ChevronLeft size={18} />Sebelumnya</button><button disabled={current === questions.length - 1} onClick={() => setCurrent(value => value + 1)} className="flex items-center rounded-xl bg-slate-50 px-4 py-3 font-bold disabled:opacity-40">Berikutnya<ChevronRight size={18} /></button></div>
+        <div className="exam-pagination mt-8 flex justify-between gap-3"><button disabled={current === 0} onClick={() => setCurrent(value => value - 1)} className="flex items-center rounded-xl bg-slate-50 px-4 py-3 font-bold disabled:opacity-40"><ChevronLeft size={18} />Sebelumnya</button><button disabled={current === questions.length - 1} onClick={() => setCurrent(value => value + 1)} className="flex items-center rounded-xl bg-slate-50 px-4 py-3 font-bold disabled:opacity-40">Berikutnya<ChevronRight size={18} /></button></div>
       </section>
       <aside className="h-fit rounded-3xl border border-slate-200 bg-white p-6"><h2 className="font-black">Navigasi soal</h2><p className="mt-2 text-sm text-slate-500">{answered} dari {questions.length} terjawab</p><div className="my-5 grid grid-cols-5 gap-2">{questions.map((q, index) => <button key={q.ID} aria-label={`Soal ${index + 1}, ${answers[q.ID] ? "terjawab" : "belum dijawab"}`} aria-current={index === current ? "step" : undefined} onClick={() => setCurrent(index)} className={`rounded-lg border py-2 font-bold ${index === current ? "ring-2 ring-indigo-500 ring-offset-2" : ""} ${answers[q.ID] ? "border-indigo-600 bg-indigo-600 text-white" : "border-slate-200 bg-slate-50"}`}>{index + 1}</button>)}</div><p role="status" className="mb-5 text-xs text-slate-500">{saveStatus}</p><button disabled={submitting} onClick={() => seconds === 0 ? void submit() : setConfirm(true)} className="w-full rounded-xl bg-indigo-600 py-3 font-bold text-white disabled:opacity-50">{submitting ? "Mengirim..." : "Kumpulkan Ujian"}</button></aside>
     </div>
-    {confirm && <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"><section role="dialog" aria-modal="true" aria-labelledby="submit-title" className="w-full max-w-md rounded-3xl bg-white p-8"><h2 id="submit-title" className="text-xl font-black">Kumpulkan ujian sekarang?</h2><p className="my-4 text-slate-500">{questions.length - answered > 0 ? `Masih ada ${questions.length - answered} soal belum dijawab. ` : "Semua soal sudah dijawab. "}Setelah dikumpulkan, jawaban tidak dapat diubah.</p><div className="flex gap-3"><button autoFocus onClick={() => setConfirm(false)} className="flex-1 rounded-xl bg-slate-100 p-3 font-bold">Periksa lagi</button><button onClick={() => void submit()} className="flex-1 rounded-xl bg-indigo-600 p-3 font-bold text-white">Ya, kumpulkan</button></div></section></div>}
+    {confirm && <div className="modal-backdrop"><section role="dialog" aria-modal="true" aria-labelledby="submit-title" className="modal-panel max-w-md"><h2 id="submit-title" className="text-xl font-black">Kumpulkan ujian sekarang?</h2><p className="my-4 text-slate-500">{questions.length - answered > 0 ? `Masih ada ${questions.length - answered} soal belum dijawab. ` : "Semua soal sudah dijawab. "}Setelah dikumpulkan, jawaban tidak dapat diubah.</p><div className="flex gap-3"><button autoFocus onClick={() => setConfirm(false)} className="flex-1 rounded-xl bg-slate-100 p-3 font-bold">Periksa lagi</button><button onClick={() => void submit()} className="flex-1 rounded-xl bg-indigo-600 p-3 font-bold text-white">Ya, kumpulkan</button></div></section></div>}
   </div>;
 }
+
+function ChoiceOptions({question,value,onChoose}:{question:Question;value:string;onChoose:(id:number,option:string)=>void}){const options:Array<"A"|"B"|"C"|"D"|"E">=question.OptionE?["A","B","C","D","E"]:["A","B","C","D"];return options.map(option=><label key={option} className={"exam-option flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition-colors "+(value===option?"border-indigo-500 bg-indigo-50 text-indigo-900":"border-slate-200 hover:border-indigo-300")}><input type="radio" name={"question-"+question.ID} value={option} checked={value===option} onChange={()=>onChoose(question.ID,option)} className="mt-1 accent-indigo-600"/><span className="font-bold">{option}.</span><span className="whitespace-pre-wrap">{question[("Option"+option) as "OptionA"]}</span></label>)}

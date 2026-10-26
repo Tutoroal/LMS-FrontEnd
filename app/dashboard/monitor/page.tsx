@@ -1,0 +1,6 @@
+"use client";
+import Analytics from "@/components/analytics";
+import Link from "next/link";
+import {useResource} from "@/lib/use-resource";
+import {PageHeading,Notice,Loading,card,secondary} from "@/components/ui";
+export default function MonitorHome(){const resource=useResource<{counts:Record<string,number>}>("/monitor/overview");return <div className="mx-auto max-w-7xl space-y-6"><PageHeading title="Pemantauan Akademik" description="Ringkasan aktivitas kelas dan guru. Akses baca saja untuk kepala sekolah dan waka kurikulum."/><Notice error={resource.error}/>{resource.loading?<Loading/>:<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">{Object.entries({students:"Siswa",teachers:"Guru",classes:"Kelas",subjects:"Mapel",materials:"Materi",assignments:"Tugas",exams:"Ujian",pending_grades:"Menunggu penilaian"}).map(([key,label])=><div key={key} className={card}><p className="text-sm text-slate-500">{label}</p><p className="mt-4 text-3xl font-semibold">{resource.data?.counts[key]||0}</p></div>)}</div>}<div className="flex flex-wrap gap-3"><Link className={secondary} href="/dashboard/monitor/classes">Pantau kelas</Link><Link className={secondary} href="/dashboard/monitor/teachers">Pantau guru</Link><Link className={secondary} href="/dashboard/monitor/reports">Export laporan</Link></div><Analytics kind="monitor"/></div>}

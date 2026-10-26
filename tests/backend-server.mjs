@@ -9,7 +9,7 @@ fs.mkdirSync(runtime,{recursive:true});
 const run=fs.mkdtempSync(path.join(runtime,"run-"));
 const database=path.join(run,"e2e.db");
 const binary=path.join(run,process.platform==="win32"?"backend.exe":"backend");
-const env={...process.env,DB_PATH:database,LMS_E2E_DB:database,JWT_SECRET:randomBytes(48).toString("hex"),PORT:"18080",FRONTEND_ORIGIN:"http://localhost:3100",AUTO_BACKUP:"false",GIN_MODE:"release"};
+const env={...process.env,DB_PATH:database,LMS_E2E_DB:database,JWT_SECRET:randomBytes(48).toString("hex"),PORT:"18080",FRONTEND_ORIGIN:"http://localhost:3100",AUTO_BACKUP:"false",UPLOAD_DIR:path.join(run,"uploads"),S3_BUCKET:"",GIN_MODE:"release"};
 const options={cwd:path.join(root,"lms-backend"),env,stdio:"inherit",windowsHide:true};
 execFileSync("go",["test","-run","^TestSeedBrowserFixture$","-count=1"],options);
 execFileSync("go",["build","-o",binary,"."],options);

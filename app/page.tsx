@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, BookOpen, CheckCircle2, Code, Palette, Network, Briefcase, Building2, Utensils, Laptop, Sparkles, Clock, FileText, Bell } from "lucide-react";
+import { ArrowRight, CheckCircle2, Laptop, Sparkles, Clock, FileText, Bell } from "lucide-react";
+
+import {SchoolBrand,LogoMark,DepartmentMascot} from "@/components/branding";
 
 export default function LandingPage() {
   const [isInitializing, setIsInitializing] = useState(true);
@@ -18,7 +20,7 @@ export default function LandingPage() {
   if (isInitializing) {
     return (
       <div className="fixed inset-0 bg-indigo-600 flex flex-col items-center justify-center z-[100] text-white">
-        <BookOpen size={56} className="animate-bounce mb-6 opacity-90" strokeWidth={1.5} />
+        <LogoMark size={70} className="mb-6"/>
         <h2 className="text-xl font-black tracking-widest uppercase mb-2">LMS Citra Negara</h2>
         <div className="flex items-center gap-2 text-indigo-200 text-sm font-bold animate-pulse">
           <div className="w-4 h-4 border-2 border-indigo-200 border-t-transparent rounded-full animate-spin"></div>
@@ -29,32 +31,25 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-200 relative">
+    <div className="public-shell restored-landing min-h-screen bg-slate-50 font-sans selection:bg-indigo-200 relative overflow-x-clip">
       
       {/* Background Grid Pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-transparent opacity-20 pointer-events-none mix-blend-overlay"></div>
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
 
       {/* NAVBAR */}
-      <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-xl z-50 border-b border-slate-200 transition-all">
+      <nav className="fixed top-0 w-full landing-nav bg-white/80 backdrop-blur-xl z-50 border-b border-slate-200 transition-all">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
-              <BookOpen size={20} strokeWidth={2.5} />
-            </div>
-            <div>
-              <h1 className="text-xl font-black text-slate-900 tracking-tight leading-none mb-0.5">LMS Citra Negara</h1>
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Satu Sistem Untuk Semua</span>
-            </div>
-          </div>
+          <SchoolBrand/>
           <Link 
             href="/login" 
-            className="bg-slate-900 hover:bg-indigo-600 text-white px-7 py-2.5 rounded-full text-sm font-bold transition-all shadow-md hover:shadow-xl hover:-translate-y-0.5"
+            className="bg-slate-900 hover:bg-indigo-600 text-white px-4 sm:px-7 py-2.5 rounded-full text-sm font-bold transition-all shadow-md hover:shadow-xl hover:-translate-y-0.5"
           >
             Masuk Portal
           </Link>
         </div>
       </nav>
+      <main>
 
       {/* HERO SECTION */}
       <section className="relative pt-36 pb-20 px-6 max-w-7xl mx-auto">
@@ -63,7 +58,7 @@ export default function LandingPage() {
           <div className="space-y-8 relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-black tracking-wide">
               <Sparkles size={14} className="text-indigo-500" />
-              Untuk Siswa, Guru, dan Admin.
+              Untuk seluruh komunitas sekolah.
             </div>
             
             <h2 className="text-5xl md:text-6xl font-black text-slate-900 tracking-tighter leading-[1.15]">
@@ -86,7 +81,7 @@ export default function LandingPage() {
           <div className="relative animate-in fade-in zoom-in-95 duration-1000 delay-200 lg:pl-10">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-br from-indigo-100/50 to-blue-50/50 rounded-full blur-3xl -z-10"></div>
             
-            <div className="bg-white/80 backdrop-blur-md p-6 md:p-8 rounded-[2rem] shadow-2xl border border-white relative z-10 transform lg:rotate-2 hover:rotate-0 transition-all duration-500">
+            <div className="restored-preview bg-white/80 backdrop-blur-md p-6 md:p-8 rounded-[2rem] shadow-2xl border border-white relative z-10 transform lg:rotate-2 hover:rotate-0 transition-all duration-500">
               <div className="flex justify-between items-center mb-8 pb-6 border-b border-slate-100">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-600">
@@ -94,7 +89,7 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-black text-slate-800">Aktivitas Hari Ini</h3>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1">Ringkasan jadwal & tugas</p>
+                    <p className="text-xs text-slate-400 font-bold mt-1">Contoh tampilan kelas XI PPLG</p>
                   </div>
                 </div>
               </div>
@@ -125,7 +120,7 @@ export default function LandingPage() {
                 </div>
               </div>
               
-              <div className="absolute -bottom-8 -right-8 bg-white p-5 rounded-3xl shadow-2xl border border-slate-100 flex items-center gap-4 animate-bounce">
+              <div className="hero-notification absolute -bottom-6 right-0 lg:-right-4 bg-white/90 backdrop-blur-xl p-4 sm:p-5 rounded-3xl shadow-2xl border border-slate-100 flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600">
                   <Bell size={24} />
                 </div>
@@ -183,65 +178,15 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* JURUSAN SECTION */}
-      <section className="py-24 px-6 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tight">Setiap jurusan terhubung dalam satu sistem yang praktis.</h2>
-          </div>
+      <section id="jurusan" className="py-20 px-6 bg-white"><div className="max-w-7xl mx-auto"><div className="text-center mb-12"><p className="text-xs font-semibold tracking-widest text-indigo-600 mb-4">ENAM JURUSAN, SATU PORTAL</p><h2 className="text-3xl md:text-4xl font-black tracking-tight">Setiap jurusan terhubung dalam satu sistem yang praktis.</h2></div><div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">{[{major:"PPLG",category:"Teknologi",description:"Pemrograman dan software modern."},{major:"TJKT",category:"Jaringan",description:"Komputer, server, dan konektivitas."},{major:"DKV",category:"Kreatif",description:"Visual branding dan multimedia."},{major:"BDR",category:"Bisnis",description:"Strategi promosi dan layanan pelanggan."},{major:"MPLB",category:"Manajemen",description:"Administrasi kantor yang terstruktur."},{major:"PERHOTELAN",category:"Layanan",description:"Etika layanan dan hospitality."}].map(item=><article key={item.major} className="department-card restored-department"><div><small>{item.category}</small><h3>{item.major}</h3><p>{item.description}</p></div><DepartmentMascot major={item.major} size={128}/></article>)}</div></div></section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="group bg-slate-50 p-8 rounded-[2rem] border border-slate-100 hover:bg-indigo-600 hover:shadow-2xl transition-all duration-300">
-              <Code size={36} className="text-indigo-600 group-hover:text-white mb-6" />
-              <div className="text-xs font-bold text-slate-400 group-hover:text-indigo-200 uppercase tracking-widest mb-2">Teknologi</div>
-              <h3 className="text-2xl font-black text-slate-900 group-hover:text-white mb-3">PPLG</h3>
-              <p className="text-slate-500 group-hover:text-indigo-100 font-medium text-sm">Pemrograman dan software modern.</p>
-            </div>
-
-            <div className="group bg-slate-50 p-8 rounded-[2rem] border border-slate-100 hover:bg-indigo-600 hover:shadow-2xl transition-all duration-300">
-              <Palette size={36} className="text-indigo-600 group-hover:text-white mb-6" />
-              <div className="text-xs font-bold text-slate-400 group-hover:text-indigo-200 uppercase tracking-widest mb-2">Kreatif</div>
-              <h3 className="text-2xl font-black text-slate-900 group-hover:text-white mb-3">DKV</h3>
-              <p className="text-slate-500 group-hover:text-indigo-100 font-medium text-sm">Visual branding dan multimedia.</p>
-            </div>
-
-            <div className="group bg-slate-50 p-8 rounded-[2rem] border border-slate-100 hover:bg-indigo-600 hover:shadow-2xl transition-all duration-300">
-              <Network size={36} className="text-indigo-600 group-hover:text-white mb-6" />
-              <div className="text-xs font-bold text-slate-400 group-hover:text-indigo-200 uppercase tracking-widest mb-2">Jaringan</div>
-              <h3 className="text-2xl font-black text-slate-900 group-hover:text-white mb-3">TJKT</h3>
-              <p className="text-slate-500 group-hover:text-indigo-100 font-medium text-sm">Komputer, server, dan konektivitas.</p>
-            </div>
-
-            <div className="group bg-slate-50 p-8 rounded-[2rem] border border-slate-100 hover:bg-indigo-600 hover:shadow-2xl transition-all duration-300">
-              <Briefcase size={36} className="text-indigo-600 group-hover:text-white mb-6" />
-              <div className="text-xs font-bold text-slate-400 group-hover:text-indigo-200 uppercase tracking-widest mb-2">Bisnis</div>
-              <h3 className="text-2xl font-black text-slate-900 group-hover:text-white mb-3">BDR</h3>
-              <p className="text-slate-500 group-hover:text-indigo-100 font-medium text-sm">Strategi promosi dan layanan pelanggan.</p>
-            </div>
-
-            <div className="group bg-slate-50 p-8 rounded-[2rem] border border-slate-100 hover:bg-indigo-600 hover:shadow-2xl transition-all duration-300">
-              <Building2 size={36} className="text-indigo-600 group-hover:text-white mb-6" />
-              <div className="text-xs font-bold text-slate-400 group-hover:text-indigo-200 uppercase tracking-widest mb-2">Manajemen</div>
-              <h3 className="text-2xl font-black text-slate-900 group-hover:text-white mb-3">MPLB</h3>
-              <p className="text-slate-500 group-hover:text-indigo-100 font-medium text-sm">Administrasi kantor yang terstruktur.</p>
-            </div>
-
-            <div className="group bg-slate-50 p-8 rounded-[2rem] border border-slate-100 hover:bg-indigo-600 hover:shadow-2xl transition-all duration-300">
-              <Utensils size={36} className="text-indigo-600 group-hover:text-white mb-6" />
-              <div className="text-xs font-bold text-slate-400 group-hover:text-indigo-200 uppercase tracking-widest mb-2">Layanan</div>
-              <h3 className="text-2xl font-black text-slate-900 group-hover:text-white mb-3">PERHOTELAN</h3>
-              <p className="text-slate-500 group-hover:text-indigo-100 font-medium text-sm">Etika layanan dan hospitality.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      </main>
       {/* FOOTER */}
       <footer className="border-t border-slate-200 bg-white">
         <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">
-              <BookOpen size={16} />
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold">
+              <LogoMark size={36}/>
             </div>
             <span className="text-base font-black text-slate-800 tracking-tight">SEKOLAH CITRA NEGARA</span>
           </div>
